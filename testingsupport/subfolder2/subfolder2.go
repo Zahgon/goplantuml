@@ -5,10 +5,9 @@ type Subfolder2 struct {
 }
 
 // SubfolderFunction is for testing purposes
-func (s *Subfolder2) SubfolderFunction(b bool, i int) bool {
-	return true
-}
+func (s *Subfolder2) SubfolderFunction(b bool, i int) bool { _ = "STUB: not implemented"; return false }
 
 func (s *Subfolder2) SubfolderFunctionWithReturnListParametrized() (a, b, c []byte, err error) {
-	return
+	_ = "STUB: not implemented"
+	return nil, nil, nil, nil
 }

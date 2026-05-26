@@ -5,6 +5,4 @@ type Test struct {
 	integer int
 }
 
-func (t *Test) function() {
-
-}
+func (t *Test) function() { _ = "STUB: not implemented"; return }

@@ -1,13 +1,10 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"sort"
 	"strings"
 
 	goplantuml "github.com/jfeliu007/goplantuml/parser"
@@ -18,19 +15,17 @@ type RenderingOptionSlice []goplantuml.RenderingOption
 
 // Len is the number of elements in the collection.
 func (as RenderingOptionSlice) Len() int {
-	return len(as)
+	_ = "STUB: not implemented"
+
+	// Less reports whether the element with
+	// index i should sort before the element with index j.
+	return 0
 }
 
-// Less reports whether the element with
-// index i should sort before the element with index j.
-func (as RenderingOptionSlice) Less(i, j int) bool {
-	return as[i] < as[j]
-}
+func (as RenderingOptionSlice) Less(i, j int) bool { _ = "STUB: not implemented"; return false }
 
 // Swap swaps the elements with indexes i and j.
-func (as RenderingOptionSlice) Swap(i, j int) {
-	as[i], as[j] = as[j], as[i]
-}
+func (as RenderingOptionSlice) Swap(i, j int) { _ = "STUB: not implemented"; return }
 
 func main() {
 	recursive := flag.Bool("recursive", false, "walk all directories recursively")
@@ -120,72 +115,14 @@ func main() {
 	fmt.Fprint(writer, rendered)
 }
 
-func getDirectories() ([]string, error) {
-
-	args := flag.Args()
-	if len(args) < 1 {
-		return nil, errors.New("DIR missing")
-	}
-	dirs := []string{}
-	for _, dir := range args {
-		fi, err := os.Stat(dir)
-		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("could not find directory %s", dir)
-		}
-		if !fi.Mode().IsDir() {
-			return nil, fmt.Errorf("%s is not a directory", dir)
-		}
-		dirAbs, err := filepath.Abs(dir)
-		if err != nil {
-			return nil, fmt.Errorf("could not find directory %s", dir)
-		}
-		dirs = append(dirs, dirAbs)
-	}
-	return dirs, nil
-}
+func getDirectories() ([]string, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func getIgnoredDirectories(list string) ([]string, error) {
-	result := []string{}
-	list = strings.TrimSpace(list)
-	if list == "" {
-		return result, nil
-	}
-	split := strings.Split(list, ",")
-	for _, dir := range split {
-		dirAbs, err := filepath.Abs(strings.TrimSpace(dir))
-		if err != nil {
-			return nil, fmt.Errorf("could not find directory %s", dir)
-		}
-		result = append(result, dirAbs)
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func getLegend(ro map[goplantuml.RenderingOption]interface{}) (string, error) {
-	result := "<u><b>Legend</b></u>\n"
-	orderedOptions := RenderingOptionSlice{}
-	for o := range ro {
-		orderedOptions = append(orderedOptions, o)
-	}
-	sort.Sort(orderedOptions)
-	for _, option := range orderedOptions {
-		val := ro[option]
-		switch option {
-		case goplantuml.RenderAggregations:
-			result = fmt.Sprintf("%sRender Aggregations: %t\n", result, val.(bool))
-		case goplantuml.RenderAliases:
-			result = fmt.Sprintf("%sRender Connections: %t\n", result, val.(bool))
-		case goplantuml.RenderCompositions:
-			result = fmt.Sprintf("%sRender Compositions: %t\n", result, val.(bool))
-		case goplantuml.RenderFields:
-			result = fmt.Sprintf("%sRender Fields: %t\n", result, val.(bool))
-		case goplantuml.RenderImplementations:
-			result = fmt.Sprintf("%sRender Implementations: %t\n", result, val.(bool))
-		case goplantuml.RenderMethods:
-			result = fmt.Sprintf("%sRender Methods: %t\n", result, val.(bool))
-		case goplantuml.AggregatePrivateMembers:
-			result = fmt.Sprintf("%sPrivate Aggregations: %t\n", result, val.(bool))
-		}
-	}
-	return strings.TrimSpace(result), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }

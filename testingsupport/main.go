@@ -1,13 +1,10 @@
 package testingsupport
 
 import (
-	f "fmt"
 	"strings"
 )
 
-func (t *test) test() {
-	f.Println("Hello Test")
-}
+func (t *test) test() { _ = "STUB: not implemented"; return }
 
 type test struct {
 	field  int

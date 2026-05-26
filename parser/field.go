@@ -1,9 +1,6 @@
 package parser
 
 import (
-	"fmt"
-	"strings"
-
 	"go/ast"
 )
 
@@ -19,127 +16,62 @@ type Field struct {
 // Returns a string representation of the given expression if it was recognized.
 // Refer to the implementation to see the different string representations.
 func getFieldType(exp ast.Expr, aliases map[string]string) (string, []string) {
-	switch v := exp.(type) {
-	case *ast.Ident:
-		return getIdent(v, aliases)
-	case *ast.ArrayType:
-		return getArrayType(v, aliases)
-	case *ast.SelectorExpr:
-		return getSelectorExp(v, aliases)
-	case *ast.MapType:
-		return getMapType(v, aliases)
-	case *ast.StarExpr:
-		return getStarExp(v, aliases)
-	case *ast.ChanType:
-		return getChanType(v, aliases)
-	case *ast.StructType:
-		return getStructType(v, aliases)
-	case *ast.InterfaceType:
-		return getInterfaceType(v, aliases)
-	case *ast.FuncType:
-		return getFuncType(v, aliases)
-	case *ast.Ellipsis:
-		return getEllipsis(v, aliases)
-	case *ast.IndexExpr:
-		// Generic instantiation like Foo[T] or pkg.Foo[T]; we only care about the base type name
-		return getFieldType(v.X, aliases)
-	case *ast.IndexListExpr:
-		// Multi-parameter instantiation like Foo[T, U]
-		return getFieldType(v.X, aliases)
-	}
-	return "", []string{}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func getIdent(v *ast.Ident, aliases map[string]string) (string, []string) {
+// Generic instantiation like Foo[T] or pkg.Foo[T]; we only care about the base type name
 
-	if isPrimitive(v) {
-		return v.Name, []string{}
-	}
-	t := fmt.Sprintf("%s%s", packageConstant, v.Name)
-	return t, []string{t}
+// Multi-parameter instantiation like Foo[T, U]
+
+func getIdent(v *ast.Ident, aliases map[string]string) (string, []string) {
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getArrayType(v *ast.ArrayType, aliases map[string]string) (string, []string) {
-	t, fundamentalTypes := getFieldType(v.Elt, aliases)
-	return fmt.Sprintf("[]%s", t), fundamentalTypes
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getSelectorExp(v *ast.SelectorExpr, aliases map[string]string) (string, []string) {
-
-	packageName := v.X.(*ast.Ident).Name
-	if realPackageName, ok := aliases[packageName]; ok {
-		packageName = realPackageName
-	}
-	t := fmt.Sprintf("%s.%s", packageName, v.Sel.Name)
-	return t, []string{t}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getMapType(v *ast.MapType, aliases map[string]string) (string, []string) {
-
-	t1, f1 := getFieldType(v.Key, aliases)
-	t2, f2 := getFieldType(v.Value, aliases)
-	return fmt.Sprintf("<font color=blue>map</font>[%s]%s", t1, t2), append(f1, f2...)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getStarExp(v *ast.StarExpr, aliases map[string]string) (string, []string) {
-
-	t, f := getFieldType(v.X, aliases)
-	return fmt.Sprintf("*%s", t), f
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getChanType(v *ast.ChanType, aliases map[string]string) (string, []string) {
-
-	t, f := getFieldType(v.Value, aliases)
-	return fmt.Sprintf("<font color=blue>chan</font> %s", t), f
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getStructType(v *ast.StructType, aliases map[string]string) (string, []string) {
-
-	fieldList := make([]string, 0)
-	for _, field := range v.Fields.List {
-		t, _ := getFieldType(field.Type, aliases)
-		fieldList = append(fieldList, t)
-	}
-	return fmt.Sprintf("<font color=blue>struct</font>{%s}", strings.Join(fieldList, ", ")), []string{}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getInterfaceType(v *ast.InterfaceType, aliases map[string]string) (string, []string) {
-
-	methods := make([]string, 0)
-	for _, field := range v.Methods.List {
-		methodName := ""
-		if field.Names != nil && len(field.Names) > 0 {
-			methodName = field.Names[0].Name
-		}
-		t, _ := getFieldType(field.Type, aliases)
-		methods = append(methods, methodName+" "+t)
-	}
-	return fmt.Sprintf("<font color=blue>interface</font>{%s}", strings.Join(methods, "; ")), []string{}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getFuncType(v *ast.FuncType, aliases map[string]string) (string, []string) {
-
-	function := getFunction(v, "", aliases, "")
-	params := make([]string, 0)
-	for _, pa := range function.Parameters {
-		params = append(params, pa.Type)
-	}
-	returns := ""
-	returnList := make([]string, 0)
-	for _, re := range function.ReturnValues {
-		returnList = append(returnList, re)
-	}
-	if len(returnList) > 1 {
-		returns = fmt.Sprintf("(%s)", strings.Join(returnList, ", "))
-	} else {
-		returns = strings.Join(returnList, "")
-	}
-	return fmt.Sprintf("<font color=blue>func</font>(%s) %s", strings.Join(params, ", "), returns), []string{}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func getEllipsis(v *ast.Ellipsis, aliases map[string]string) (string, []string) {
-	t, _ := getFieldType(v.Elt, aliases)
-	return fmt.Sprintf("...%s", t), []string{}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 var globalPrimitives = map[string]struct{}{
@@ -185,32 +117,19 @@ var globalPrimitives = map[string]struct{}{
 	"*error":      {},
 }
 
-func isPrimitive(ty *ast.Ident) bool {
-	return isPrimitiveString(ty.Name)
-}
+func isPrimitive(ty *ast.Ident) bool { _ = "STUB: not implemented"; return false }
 
-func isPrimitiveString(t string) bool {
-	_, ok := globalPrimitives[t]
-	return ok
-}
+func isPrimitiveString(t string) bool { _ = "STUB: not implemented"; return false }
 
 func replacePackageConstant(field, packageName string) string {
+	_ = "STUB: not implemented"
 	// Don't replace package constants for external packages
-	if isExternalPackage(field) {
-		return field
-	}
-
-	if packageName != "" {
-		packageName = fmt.Sprintf("%s.", packageName)
-	}
-	return strings.Replace(field, packageConstant, packageName, 1)
+	return ""
 }
 
 // isExternalPackage checks if a field type represents an external package
 func isExternalPackage(field string) bool {
+	_ = "STUB: not implemented"
 	// External packages contain dots and don't start with packageConstant
-	if strings.Contains(field, ".") && !strings.Contains(field, packageConstant) {
-		return true
-	}
 	return false
 }

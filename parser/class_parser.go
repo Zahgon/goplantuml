@@ -14,16 +14,9 @@ the console.
 package parser
 
 import (
-	"fmt"
 	"go/ast"
-	"go/parser"
-	"go/token"
 	"os"
-	"path/filepath"
-	"regexp"
-	"sort"
 	"strings"
-	"unicode"
 
 	"github.com/spf13/afero"
 )
@@ -43,9 +36,8 @@ const aliasOf = `"alias of"`
 
 // WriteLineWithDepth will write the given text with added tabs at the beginning into the string builder.
 func (lsb *LineStringBuilder) WriteLineWithDepth(depth int, str string) {
-	lsb.WriteString(strings.Repeat(tab, depth))
-	lsb.WriteString(str)
-	lsb.WriteString("\n")
+	_ = "STUB: not implemented"
+	return
 }
 
 // ClassDiagramOptions will provide a way for callers of the NewClassDiagramFs() function to pass all the necessary arguments.
@@ -144,1274 +136,442 @@ type PackageNode struct {
 // files in the given directory passed in the ClassDiargamOptions. This will also alow for different types of FileSystems
 // Passed since it is part of the ClassDiagramOptions as well.
 func NewClassDiagramWithOptions(options *ClassDiagramOptions) (*ClassParser, error) {
-	classParser := newClassParser(options)
-
-	ignoreDirectoryMap := buildIgnoreDirectoryMap(options.IgnoredDirectories)
-
-	if err := processDirectories(classParser, options, ignoreDirectoryMap); err != nil {
-		return nil, err
-	}
-
-	populateInterfaceImplementations(classParser)
-
-	classParser.SetRenderingOptions(options.RenderingOptions)
-	return classParser, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // --- helpers ---
 
 func newClassParser(options *ClassDiagramOptions) *ClassParser {
-	return &ClassParser{
-		renderingOptions: &RenderingOptions{
-			Aggregations:     false,
-			Fields:           true,
-			Methods:          true,
-			Compositions:     true,
-			Implementations:  true,
-			Aliases:          true,
-			ConnectionLabels: false,
-			Title:            "",
-			Notes:            "",
-		},
-		structure:         make(map[string]map[string]*Struct),
-		rootDirectories:   options.Directories,
-		allInterfaces:     make(map[string]struct{}),
-		allStructs:        make(map[string]struct{}),
-		allImports:        make(map[string]string),
-		allAliases:        make(map[string]*Alias),
-		allRenamedStructs: make(map[string]map[string]string),
-		maxDepth:          options.MaxDepth,
-		packageHierarchy:  make(map[string]*PackageNode),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func buildIgnoreDirectoryMap(ignored []string) map[string]struct{} {
-	m := map[string]struct{}{}
-	for _, dir := range ignored {
-		m[dir] = struct{}{}
-	}
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func processDirectories(classParser *ClassParser, options *ClassDiagramOptions, ignoreDirs map[string]struct{}) error {
-	for _, directoryPath := range options.Directories {
-		if options.Recursive {
-			if err := walkDirectory(options.FileSystem, directoryPath, ignoreDirs, classParser); err != nil {
-				return err
-			}
-		} else {
-			if err := classParser.parseDirectory(directoryPath); err != nil {
-				return err
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func walkDirectory(fs afero.Fs, root string, ignoreDirs map[string]struct{}, classParser *ClassParser) error {
-	return afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			if shouldSkipDir(path, info, ignoreDirs) {
-				return filepath.SkipDir
-			}
-			classParser.parseDirectory(path)
-		}
-		return nil
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func shouldSkipDir(path string, info os.FileInfo, ignoreDirs map[string]struct{}) bool {
-	if strings.HasPrefix(info.Name(), ".") || info.Name() == "vendor" {
-		return true
-	}
-	if _, ok := ignoreDirs[path]; ok {
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func populateInterfaceImplementations(classParser *ClassParser) {
-	for s := range classParser.allStructs {
-		st := classParser.getStruct(s)
-		if st == nil {
-			continue
-		}
-		for i := range classParser.allInterfaces {
-			inter := classParser.getStruct(i)
-			if inter != nil && st.ImplementsInterface(inter) {
-				st.AddToExtends(i)
-			}
-		}
-	}
-}
+func populateInterfaceImplementations(classParser *ClassParser) { _ = "STUB: not implemented"; return }
 
 // NewClassDiagram returns a new classParser with which can Render the class diagram of
 // files in the given directory
 func NewClassDiagram(directoryPaths []string, ignoreDirectories []string, recursive bool) (*ClassParser, error) {
-	return NewClassDiagramWithMaxDepth(directoryPaths, ignoreDirectories, recursive, 0)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // NewClassDiagramWithMaxDepth returns a new classParser with which can Render the class diagram of
 // files in the given directory with a maximum nesting depth
 func NewClassDiagramWithMaxDepth(directoryPaths []string, ignoreDirectories []string, recursive bool, maxDepth int) (*ClassParser, error) {
-	options := &ClassDiagramOptions{
-		Directories:        directoryPaths,
-		IgnoredDirectories: ignoreDirectories,
-		Recursive:          recursive,
-		RenderingOptions:   map[RenderingOption]interface{}{},
-		FileSystem:         afero.NewOsFs(),
-		MaxDepth:           maxDepth,
-	}
-	return NewClassDiagramWithOptions(options)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // getOrCreatePackageNode creates or retrieves a package node in the hierarchy
 func (p *ClassParser) getOrCreatePackageNode(dirPath string) *PackageNode {
+	_ = "STUB: not implemented"
 	// Calculate the package path relative to the root directories
-	packagePath := p.calculatePackagePath(dirPath)
-
-	if node, exists := p.packageHierarchy[packagePath]; exists {
-		return node
-	}
-
-	// Create new package node
-	// Use the last component of the package path as the display name
-	displayName := filepath.Base(dirPath)
-	if strings.Contains(packagePath, ".") {
-		parts := strings.Split(packagePath, ".")
-		displayName = parts[len(parts)-1]
-	}
-
-	node := &PackageNode{
-		Name:       displayName,
-		FullPath:   packagePath,
-		Children:   make(map[string]*PackageNode),
-		Structures: make(map[string]*Struct),
-		Depth:      p.calculateDepth(packagePath),
-	}
-
-	// Check depth limit
-	if p.maxDepth > 0 && node.Depth > p.maxDepth {
-		return nil
-	}
-
-	// Establish parent-child relationships
-	p.establishParentChildRelationships(node)
-
-	p.packageHierarchy[packagePath] = node
-	return node
+	return nil
 }
+
+// Create new package node
+// Use the last component of the package path as the display name
+
+// Check depth limit
+
+// Establish parent-child relationships
 
 // establishParentChildRelationships sets up parent-child relationships for a package node
 func (p *ClassParser) establishParentChildRelationships(node *PackageNode) {
-	if node.Depth <= 1 {
-		return // Root package, no parent
-	}
-
-	// Find parent path by removing the last component
-	parentPath := p.getParentPath(node.FullPath)
-	if parentPath == "" {
-		return
-	}
-
-	// Get or create parent node
-	parentNode := p.packageHierarchy[parentPath]
-	if parentNode == nil {
-		// Create parent node if it doesn't exist
-		parentDir := p.getDirectoryForPackagePath(parentPath)
-		if parentDir != "" {
-			parentNode = p.getOrCreatePackageNode(parentDir)
-		}
-	}
-
-	if parentNode != nil {
-		node.Parent = parentNode
-		parentNode.Children[node.FullPath] = node
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Root package, no parent
+
+// Find parent path by removing the last component
+
+// Get or create parent node
+
+// Create parent node if it doesn't exist
 
 // getParentPath returns the parent path of a given package path
 func (p *ClassParser) getParentPath(packagePath string) string {
-	lastDot := strings.LastIndex(packagePath, ".")
-	if lastDot == -1 {
-		return "" // No parent
-	}
-	return packagePath[:lastDot]
-}
-
-// getDirectoryForPackagePath returns the directory path for a given package path
-func (p *ClassParser) getDirectoryForPackagePath(packagePath string) string {
-	// Convert package path back to directory path
-	// For example: "cmd.goplantuml" -> "cmd/goplantuml"
-	dirPath := strings.ReplaceAll(packagePath, ".", string(filepath.Separator))
-
-	// Check if this directory exists relative to any of our root directories
-	for _, rootDir := range p.rootDirectories {
-		fullPath := filepath.Join(rootDir, dirPath)
-		if _, err := os.Stat(fullPath); err == nil {
-			return fullPath
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return ""
 }
 
+// No parent
+
+// getDirectoryForPackagePath returns the directory path for a given package path
+func (p *ClassParser) getDirectoryForPackagePath(packagePath string) string {
+	_ = "STUB: not implemented"
+	// Convert package path back to directory path
+	// For example: "cmd.goplantuml" -> "cmd/goplantuml"
+	return ""
+}
+
+// Check if this directory exists relative to any of our root directories
+
 // calculatePackagePath determines the package path from directory path
 func (p *ClassParser) calculatePackagePath(dirPath string) string {
-	absPath, _ := filepath.Abs(dirPath)
-
-	// Find the shortest root directory that contains this path
-	var shortestRoot string
-	for _, root := range p.getRootDirectories() {
-		rootAbs, _ := filepath.Abs(root)
-		if strings.HasPrefix(absPath, rootAbs) {
-			if shortestRoot == "" || len(rootAbs) < len(shortestRoot) {
-				shortestRoot = rootAbs
-			}
-		}
-	}
-
-	if shortestRoot == "" {
-		return filepath.Base(absPath)
-	}
-
-	// Get relative path from root
-	relPath, err := filepath.Rel(shortestRoot, absPath)
-	if err != nil {
-		return filepath.Base(absPath)
-	}
-
-	// Convert path separators to dots for package naming
-	packagePath := strings.ReplaceAll(relPath, string(filepath.Separator), ".")
-	if packagePath == "." {
-		return filepath.Base(shortestRoot)
-	}
-
-	// Check if we're at the project root level (no nesting)
-	// If the relative path doesn't contain separators, we're at the top level
-	if !strings.Contains(relPath, string(filepath.Separator)) {
-		return packagePath
-	}
-
-	// Special case: if we're processing the project root (current directory)
-	// and the path contains testingsupport or cmd, we want to preserve the nesting
-	// This handles the case where these are subdirectories of the project
-	if strings.HasPrefix(relPath, "testingsupport") || strings.HasPrefix(relPath, "cmd") {
-		return packagePath
-	}
-
-	// Special case: if we're processing cmd/goplantuml, it should be treated as cmd.goplantuml
-	// not as a separate root package
-	if strings.HasPrefix(relPath, "cmd/goplantuml") {
-		return "cmd.goplantuml"
-	}
-
-	// Special case: if we're processing cmd directory, it should be treated as cmd
-	if strings.HasPrefix(relPath, "cmd/") {
-		return "cmd"
-	}
-
-	// Only prepend root directory name if we're not at the root level
-	// and if the root directory is not "." (current directory)
-	rootName := filepath.Base(shortestRoot)
-	if packagePath != "" && rootName != "." {
-		return rootName + "." + packagePath
-	}
-
-	return packagePath
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// Find the shortest root directory that contains this path
+
+// Get relative path from root
+
+// Convert path separators to dots for package naming
+
+// Check if we're at the project root level (no nesting)
+// If the relative path doesn't contain separators, we're at the top level
+
+// Special case: if we're processing the project root (current directory)
+// and the path contains testingsupport or cmd, we want to preserve the nesting
+// This handles the case where these are subdirectories of the project
+
+// Special case: if we're processing cmd/goplantuml, it should be treated as cmd.goplantuml
+// not as a separate root package
+
+// Special case: if we're processing cmd directory, it should be treated as cmd
+
+// Only prepend root directory name if we're not at the root level
+// and if the root directory is not "." (current directory)
 
 // calculateDepth calculates the nesting depth of a package path
-func (p *ClassParser) calculateDepth(packagePath string) int {
-	if packagePath == "" {
-		return 0
-	}
-	return strings.Count(packagePath, ".") + 1
-}
+func (p *ClassParser) calculateDepth(packagePath string) int { _ = "STUB: not implemented"; return 0 }
 
 // getRootDirectories returns the root directories being processed
-func (p *ClassParser) getRootDirectories() []string {
-	return p.rootDirectories
-}
+func (p *ClassParser) getRootDirectories() []string { _ = "STUB: not implemented"; return nil }
 
 // parse the given ast.Package into the ClassParser structure
-func (p *ClassParser) parsePackage(node ast.Node) {
-	pack := node.(*ast.Package)
+func (p *ClassParser) parsePackage(node ast.Node) { _ = "STUB: not implemented"; return }
 
-	// Create package node for this directory
-	packageNode := p.getOrCreatePackageNode(p.currentDirPath)
-	if packageNode == nil {
-		return // Skip if depth limit exceeded
-	}
+// Create package node for this directory
 
-	// Use the hierarchical package name for the structure map
-	p.currentPackageName = packageNode.FullPath
+// Skip if depth limit exceeded
 
-	// Initialize structure maps
-	_, ok := p.structure[p.currentPackageName]
-	if !ok {
-		p.structure[p.currentPackageName] = make(map[string]*Struct)
-	}
+// Use the hierarchical package name for the structure map
 
-	var sortedFiles []string
-	for fileName := range pack.Files {
-		sortedFiles = append(sortedFiles, fileName)
-	}
-	sort.Strings(sortedFiles)
-	for _, fileName := range sortedFiles {
+// Initialize structure maps
 
-		if !strings.HasSuffix(fileName, "_test.go") {
-			f := pack.Files[fileName]
-			for _, d := range f.Imports {
-				p.parseImports(d)
-			}
-			for _, d := range f.Decls {
-				p.parseFileDeclarations(d)
-			}
-		}
-	}
-}
-
-func (p *ClassParser) parseImports(impt *ast.ImportSpec) {
-	if impt.Name != nil {
-		splitPath := strings.Split(impt.Path.Value, "/")
-		s := strings.Trim(splitPath[len(splitPath)-1], `"`)
-		p.allImports[impt.Name.Name] = s
-	}
-}
+func (p *ClassParser) parseImports(impt *ast.ImportSpec) { _ = "STUB: not implemented"; return }
 
 func (p *ClassParser) parseDirectory(directoryPath string) error {
-	p.currentDirPath = directoryPath
-	fs := token.NewFileSet()
-	result, err := parser.ParseDir(fs, directoryPath, nil, 0)
-	if err != nil {
-		return err
-	}
-	for _, v := range result {
-		p.parsePackage(v)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // parse the given declaration looking for classes, interfaces, or member functions
-func (p *ClassParser) parseFileDeclarations(node ast.Decl) {
-	switch decl := node.(type) {
-	case *ast.GenDecl:
-		p.handleGenDecl(decl)
-	case *ast.FuncDecl:
-		p.handleFuncDecl(decl)
-	}
-}
+func (p *ClassParser) parseFileDeclarations(node ast.Decl) { _ = "STUB: not implemented"; return }
 
-func (p *ClassParser) handleFuncDecl(decl *ast.FuncDecl) {
+func (p *ClassParser) handleFuncDecl(decl *ast.FuncDecl) { _ = "STUB: not implemented"; return }
 
-	if decl.Recv != nil {
-		if len(decl.Recv.List) == 0 {
-			return
-		}
+// Only get in when the function is defined for a structure. Global functions are not needed for class diagram
 
-		// Only get in when the function is defined for a structure. Global functions are not needed for class diagram
-		theType, _ := getFieldType(decl.Recv.List[0].Type, p.allImports)
-		theType = replacePackageConstant(theType, "")
-		if len(theType) > 0 && theType[0] == "*"[0] {
-			theType = theType[1:]
-		}
-		// Skip functions with empty or invalid receiver types (e.g., malformed syntax)
-		if theType == "" {
-			return
-		}
-		structure := p.getOrCreateStruct(theType)
-		if structure == nil {
-			return
-		}
-		if structure.Type == "" {
-			structure.Type = "class"
-		}
-
-		fullName := fmt.Sprintf("%s.%s", p.currentPackageName, theType)
-		p.allStructs[fullName] = struct{}{}
-		structure.AddMethod(&ast.Field{
-			Names:   []*ast.Ident{decl.Name},
-			Doc:     decl.Doc,
-			Type:    decl.Type,
-			Tag:     nil,
-			Comment: nil,
-		}, p.allImports)
-	}
-}
+// Skip functions with empty or invalid receiver types (e.g., malformed syntax)
 
 func handleGenDecStructType(p *ClassParser, typeName string, c *ast.StructType) {
-	for _, f := range c.Fields.List {
-		if structure := p.getOrCreateStruct(typeName); structure != nil {
-			structure.AddField(f, p.allImports)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func handleGenDecInterfaceType(p *ClassParser, typeName string, c *ast.InterfaceType) {
-	for _, f := range c.Methods.List {
-		switch t := f.Type.(type) {
-		case *ast.FuncType:
-			if structure := p.getOrCreateStruct(typeName); structure != nil {
-				structure.AddMethod(f, p.allImports)
-			}
-		case *ast.Ident:
-			f, _ := getFieldType(t, p.allImports)
-			if st := p.getOrCreateStruct(typeName); st != nil {
-				f = replacePackageConstant(f, st.PackageName)
-				st.AddToComposition(f)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (p *ClassParser) handleGenDecl(decl *ast.GenDecl) {
-	if len(decl.Specs) < 1 {
-		// This might be a type of General Declaration we do not know how to handle.
-		return
-	}
-	for _, spec := range decl.Specs {
-		p.processSpec(spec)
-	}
-}
+func (p *ClassParser) handleGenDecl(decl *ast.GenDecl) { _ = "STUB: not implemented"; return }
 
-func (p *ClassParser) processSpec(spec ast.Spec) {
-	typeSpec, ok := spec.(*ast.TypeSpec)
-	if !ok {
-		// Not needed for class diagrams (Imports, global variables, regular functions, etc)
-		return
-	}
+// This might be a type of General Declaration we do not know how to handle.
 
-	typeName, declarationType, alias := p.processTypeSpec(typeSpec)
-	
-	if structure := p.getOrCreateStruct(typeName); structure != nil {
-		structure.Type = declarationType
-	}
-	
-	p.registerDeclaration(typeName, declarationType, alias)
-}
+func (p *ClassParser) processSpec(spec ast.Spec) { _ = "STUB: not implemented"; return }
+
+// Not needed for class diagrams (Imports, global variables, regular functions, etc)
 
 // processTypeSpec handles the processing of a TypeSpec and returns type name, declaration type, and alias
 func (p *ClassParser) processTypeSpec(typeSpec *ast.TypeSpec) (string, string, *Alias) {
-	typeName := typeSpec.Name.Name
-	declarationType := "alias"
-	var alias *Alias
-
-	switch c := typeSpec.Type.(type) {
-	case *ast.StructType:
-		declarationType = "class"
-		p.processStructType(typeSpec, typeName, c)
-	case *ast.InterfaceType:
-		declarationType = "interface"
-		p.processInterfaceType(typeSpec, typeName, c)
-	default:
-		alias = p.processAliasType(typeSpec, typeName, c)
-		// For aliases, we need to use the full name for the structure
-		if alias != nil {
-			typeName = alias.AliasOf
-		}
-	}
-
-	return typeName, declarationType, alias
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
+
+// For aliases, we need to use the full name for the structure
 
 // processStructType handles struct type processing including generic parameters
 func (p *ClassParser) processStructType(typeSpec *ast.TypeSpec, typeName string, structType *ast.StructType) {
-	p.parseGenericTypeParameters(typeSpec, typeName)
-	handleGenDecStructType(p, typeName, structType)
+	_ = "STUB: not implemented"
+	return
 }
 
 // processInterfaceType handles interface type processing including generic parameters
 func (p *ClassParser) processInterfaceType(typeSpec *ast.TypeSpec, typeName string, interfaceType *ast.InterfaceType) {
-	p.parseGenericTypeParameters(typeSpec, typeName)
-	handleGenDecInterfaceType(p, typeName, interfaceType)
+	_ = "STUB: not implemented"
+	return
 }
 
 // processAliasType handles alias type processing
 func (p *ClassParser) processAliasType(typeSpec *ast.TypeSpec, typeName string, typeExpr ast.Expr) *Alias {
-	basicType, _ := getFieldType(getBasicType(typeExpr), p.allImports)
-	aliasType, _ := getFieldType(typeExpr, p.allImports)
-	aliasType = replacePackageConstant(aliasType, "")
-	
-	// For aliases, we need to create the full name with package
-	fullTypeName := typeName
-	if !isPrimitiveString(typeName) {
-		fullTypeName = fmt.Sprintf("%s.%s", p.currentPackageName, typeName)
-	}
-	
-	packageName := p.currentPackageName
-	if isPrimitiveString(basicType) {
-		packageName = builtinPackageName
-	}
-	
-	return getNewAlias(fmt.Sprintf("%s.%s", packageName, aliasType), p.currentPackageName, fullTypeName)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// For aliases, we need to create the full name with package
 
 // parseGenericTypeParameters extracts and sets type parameters for a type spec
 func (p *ClassParser) parseGenericTypeParameters(typeSpec *ast.TypeSpec, typeName string) {
-	if typeSpec.TypeParams != nil && len(typeSpec.TypeParams.List) > 0 {
-		if st := p.getOrCreateStruct(typeName); st != nil {
-			st.TypeParameters = parseTypeParameters(typeSpec.TypeParams, p.allImports)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // registerDeclaration registers the declaration in the appropriate collections
 func (p *ClassParser) registerDeclaration(typeName, declarationType string, alias *Alias) {
-	fullName := fmt.Sprintf("%s.%s", p.currentPackageName, typeName)
-	
-	switch declarationType {
-	case "interface":
-		p.allInterfaces[fullName] = struct{}{}
-	case "class":
-		p.allStructs[fullName] = struct{}{}
-	case "alias":
-		p.registerAlias(typeName, alias)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // registerAlias handles alias registration including renamed structs
 func (p *ClassParser) registerAlias(typeName string, alias *Alias) {
+	_ = "STUB: not implemented"
 	// Use the full name from the alias for registration
-	fullName := alias.AliasOf
-	p.allAliases[fullName] = alias
-	if strings.Count(alias.Name, ".") > 1 {
-		pack := strings.SplitN(alias.Name, ".", 2)
-		if _, ok := p.allRenamedStructs[pack[0]]; !ok {
-			p.allRenamedStructs[pack[0]] = map[string]string{}
-		}
-		renamedClass := generateRenamedStructName(pack[1])
-		p.allRenamedStructs[pack[0]][renamedClass] = pack[1]
-	}
+	return
 }
 
 // parseTypeParameters parses ast.FieldList of type parameters into []TypeParameter
 func parseTypeParameters(fl *ast.FieldList, aliases map[string]string) []TypeParameter {
-	params := make([]TypeParameter, 0)
-	if fl == nil {
-		return params
-	}
-	for _, f := range fl.List {
-		// Each field may declare multiple identifiers with the same constraint
-		constraint := stringifyConstraint(f.Type, aliases)
-		for _, name := range f.Names {
-			params = append(params, TypeParameter{Name: name.Name, Constraints: constraint})
-		}
-	}
-	return params
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Each field may declare multiple identifiers with the same constraint
 
 // stringifyConstraint produces a string for a type constraint expression
 func stringifyConstraint(expr ast.Expr, aliases map[string]string) string {
-	switch t := expr.(type) {
-	case *ast.Ident:
-		// any, comparable, or named constraints
-		return t.Name
-	case *ast.InterfaceType:
-		// Could be interface{ ~int | ~string | Method() }
-		// For simplicity, reuse getInterfaceType to render methods, but try to flatten embedded types
-		// Prefer union-like listing when possible
-		return strings.TrimSpace(strings.TrimPrefix(strings.TrimSuffix(renderInterfaceConstraint(t, aliases), "}"), "interface{"))
-	case *ast.BinaryExpr:
-		// Union of terms: X | Y
-		if t.Op == token.OR {
-			left := stringifyConstraint(t.X, aliases)
-			right := stringifyConstraint(t.Y, aliases)
-			return left + "|" + right
-		}
-		str, _ := getFieldType(t, aliases)
-		return replacePackageConstant(str, "")
-	case *ast.UnaryExpr:
-		// Tilde type terms: ~int
-		if t.Op == token.TILDE {
-			inner := stringifyConstraint(t.X, aliases)
-			return "~" + inner
-		}
-		str, _ := getFieldType(t, aliases)
-		return replacePackageConstant(str, "")
-	case *ast.ParenExpr:
-		return stringifyConstraint(t.X, aliases)
-	case *ast.SelectorExpr:
-		pkg := t.X.(*ast.Ident).Name
-		if real, ok := aliases[pkg]; ok {
-			pkg = real
-		}
-		return pkg + "." + t.Sel.Name
-	case *ast.ArrayType, *ast.MapType, *ast.StarExpr, *ast.ChanType, *ast.FuncType, *ast.StructType:
-		// Fallback to existing field type stringifier
-		str, _ := getFieldType(t, aliases)
-		return replacePackageConstant(str, "")
-	default:
-		str, _ := getFieldType(t, aliases)
-		return replacePackageConstant(str, "")
-	}
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// any, comparable, or named constraints
+
+// Could be interface{ ~int | ~string | Method() }
+// For simplicity, reuse getInterfaceType to render methods, but try to flatten embedded types
+// Prefer union-like listing when possible
+
+// Union of terms: X | Y
+
+// Tilde type terms: ~int
+
+// Fallback to existing field type stringifier
 
 // renderInterfaceConstraint renders interface type constraints similarly to getInterfaceType but returns body only
 func renderInterfaceConstraint(v *ast.InterfaceType, aliases map[string]string) string {
-	methods := make([]string, 0)
-	for _, field := range v.Methods.List {
-		// If method has a name, keep signature; otherwise it may be embedded type or union-like element
-		if field.Names != nil && len(field.Names) > 0 {
-			methodName := field.Names[0].Name
-			t, _ := getFieldType(field.Type, aliases)
-			methods = append(methods, methodName+" "+t)
-		} else {
-			// Embedded constraint type
-			emb := stringifyConstraint(field.Type, aliases)
-			methods = append(methods, emb)
-		}
-	}
-	return "interface{" + strings.Join(methods, "; ") + "}"
+	_ = "STUB: not implemented"
+	return ""
 }
+
+// If method has a name, keep signature; otherwise it may be embedded type or union-like element
+
+// Embedded constraint type
 
 // If this element is an array or a pointer, this function will return the type that is closer to these
 // two definitions. For example []***map[int] string will return map[int]string
-func getBasicType(theType ast.Expr) ast.Expr {
-	switch t := theType.(type) {
-	case *ast.ArrayType:
-		return getBasicType(t.Elt)
-	case *ast.StarExpr:
-		return getBasicType(t.X)
-	case *ast.MapType:
-		return getBasicType(t.Value)
-	case *ast.ChanType:
-		return getBasicType(t.Value)
-	case *ast.Ellipsis:
-		return getBasicType(t.Elt)
-	}
-	return theType
-}
+func getBasicType(theType ast.Expr) ast.Expr { _ = "STUB: not implemented"; return *new(ast.Expr) }
 
 // Render returns a string of the class diagram that this parser has generated.
-func (p *ClassParser) Render() string {
-	str := &LineStringBuilder{}
-	str.WriteLineWithDepth(0, "@startuml")
-	if p.renderingOptions.Title != "" {
-		str.WriteLineWithDepth(0, fmt.Sprintf(`title %s`, p.renderingOptions.Title))
-	}
-	if note := strings.TrimSpace(p.renderingOptions.Notes); note != "" {
-		str.WriteLineWithDepth(0, "legend")
-		str.WriteLineWithDepth(0, note)
-		str.WriteLineWithDepth(0, "end legend")
-	}
+func (p *ClassParser) Render() string { _ = "STUB: not implemented"; return "" }
 
-	// Create builders for relationships
-	composition := &LineStringBuilder{}
-	extends := &LineStringBuilder{}
-	aggregations := &LineStringBuilder{}
-	params := &LineStringBuilder{}
-	// Deduplication sets for generic outputs
-	emittedTypeParamClass := map[string]struct{}{}
-	emittedParamLink := map[string]struct{}{}
+// Create builders for relationships
 
-	// Render hierarchical packages
-	p.renderHierarchicalPackagesWithGenerics(str, composition, extends, aggregations, params, emittedTypeParamClass, emittedParamLink)
+// Deduplication sets for generic outputs
 
-	// Render aliases
-	if p.renderingOptions.Aliases {
-		p.renderAliases(str)
-	}
+// Render hierarchical packages
 
-	// Render all relationships collected during package rendering
-	if p.renderingOptions.Compositions {
-		str.WriteLineWithDepth(0, composition.String())
-	}
-	if p.renderingOptions.Implementations {
-		str.WriteLineWithDepth(0, extends.String())
-	}
-	if p.renderingOptions.Aggregations {
-		str.WriteLineWithDepth(0, aggregations.String())
-	}
-	// Always render generic parameter relationships at the end
-	str.WriteLineWithDepth(0, params.String())
+// Render aliases
 
-	if !p.renderingOptions.Fields {
-		str.WriteLineWithDepth(0, "hide fields")
-	}
-	if !p.renderingOptions.Methods {
-		str.WriteLineWithDepth(0, "hide methods")
-	}
-	str.WriteLineWithDepth(0, "@enduml")
-	return str.String()
-}
+// Render all relationships collected during package rendering
+
+// Always render generic parameter relationships at the end
 
 // Wrapper to pass dedupe maps
 func (p *ClassParser) renderHierarchicalPackagesWithGenerics(str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder, emittedTypeParamClass map[string]struct{}, emittedParamLink map[string]struct{}) {
+	_ = "STUB: not implemented"
 	// Find root packages (packages with no parent)
-	rootPackages := make(map[string]*PackageNode)
-	for _, node := range p.packageHierarchy {
-		if node.Parent == nil {
-			rootPackages[node.FullPath] = node
-		}
-	}
-
-	// Sort root packages by name
-	var sortedRoots []string
-	for path := range rootPackages {
-		sortedRoots = append(sortedRoots, path)
-	}
-	sort.Strings(sortedRoots)
-
-	// Render each root package and its children
-	for _, rootPath := range sortedRoots {
-		p.renderPackageNodeWithGenerics(rootPackages[rootPath], str, composition, extends, aggregations, params, emittedTypeParamClass, emittedParamLink, 0)
-	}
+	return
 }
+
+// Sort root packages by name
+
+// Render each root package and its children
 
 // renderHierarchicalPackages renders packages in a hierarchical structure
 func (p *ClassParser) renderHierarchicalPackages(str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder) {
+	_ = "STUB: not implemented"
 	// Find root packages (packages with no parent)
-	rootPackages := make(map[string]*PackageNode)
-	for _, node := range p.packageHierarchy {
-		if node.Parent == nil {
-			rootPackages[node.FullPath] = node
-		}
-	}
-
-	// Sort root packages by name
-	var sortedRoots []string
-	for path := range rootPackages {
-		sortedRoots = append(sortedRoots, path)
-	}
-	sort.Strings(sortedRoots)
-
-	// Render each root package and its children
-	for _, rootPath := range sortedRoots {
-		p.renderPackageNode(rootPackages[rootPath], str, composition, extends, aggregations, params, 0)
-	}
+	return
 }
+
+// Sort root packages by name
+
+// Render each root package and its children
 
 // renderPackageNode renders a package node and its children recursively
 func (p *ClassParser) renderPackageNode(node *PackageNode, str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder, depth int) {
-	if node == nil {
-		return
-	}
-
-	// Render this package's namespace using the short name
-	str.WriteLineWithDepth(depth, fmt.Sprintf(`namespace %s {`, node.Name))
-
-	// Render structures in this package using the full path
-	if structures, exists := p.structure[node.FullPath]; exists {
-		p.renderStructuresInPackage(node.FullPath, structures, str, depth+1, composition, extends, aggregations, params)
-	}
-
-	// Render child packages
-	var childNames []string
-	for _, child := range node.Children {
-		childNames = append(childNames, child.FullPath)
-	}
-	sort.Strings(childNames)
-
-	for _, childPath := range childNames {
-		p.renderPackageNode(node.Children[childPath], str, composition, extends, aggregations, params, depth+1)
-	}
-
-	// Close namespace
-	str.WriteLineWithDepth(depth, "}")
+	_ = "STUB: not implemented"
+	return
 }
+
+// Render this package's namespace using the short name
+
+// Render structures in this package using the full path
+
+// Render child packages
+
+// Close namespace
 
 // Generic-aware variant
 func (p *ClassParser) renderPackageNodeWithGenerics(node *PackageNode, str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder, emittedTypeParamClass map[string]struct{}, emittedParamLink map[string]struct{}, depth int) {
-	if node == nil {
-		return
-	}
-
-	// Render this package's namespace using the short name
-	str.WriteLineWithDepth(depth, fmt.Sprintf(`namespace %s {`, node.Name))
-
-	// Render structures in this package using the full path
-	if structures, exists := p.structure[node.FullPath]; exists {
-		p.renderStructuresInPackageWithGenerics(node.FullPath, structures, str, depth+1, composition, extends, aggregations, params, emittedTypeParamClass, emittedParamLink)
-	}
-
-	// Render child packages
-	var childNames []string
-	for _, child := range node.Children {
-		childNames = append(childNames, child.FullPath)
-	}
-	sort.Strings(childNames)
-
-	for _, childPath := range childNames {
-		p.renderPackageNodeWithGenerics(node.Children[childPath], str, composition, extends, aggregations, params, emittedTypeParamClass, emittedParamLink, depth+1)
-	}
-
-	// Close namespace
-	str.WriteLineWithDepth(depth, "}")
+	_ = "STUB: not implemented"
+	return
 }
+
+// Render this package's namespace using the short name
+
+// Render structures in this package using the full path
+
+// Render child packages
+
+// Close namespace
 
 // renderStructuresInPackage renders structures within a package namespace
 func (p *ClassParser) renderStructuresInPackage(pack string, structures map[string]*Struct, str *LineStringBuilder, depth int, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder) {
-	if len(structures) > 0 {
-		names := []string{}
-		for name := range structures {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-
-		for _, name := range names {
-			structure := structures[name]
-			p.renderStructure(structure, pack, name, str, composition, extends, aggregations, params)
-		}
-
-		// Render renamed structs if any
-		var orderedRenamedStructs []string
-		for tempName := range p.allRenamedStructs[pack] {
-			orderedRenamedStructs = append(orderedRenamedStructs, tempName)
-		}
-		sort.Strings(orderedRenamedStructs)
-		for _, tempName := range orderedRenamedStructs {
-			name := p.allRenamedStructs[pack][tempName]
-			str.WriteLineWithDepth(depth, fmt.Sprintf(`class "%s" as %s {`, name, tempName))
-			str.WriteLineWithDepth(depth+1, aliasComplexNameComment)
-			str.WriteLineWithDepth(depth, "}")
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Render renamed structs if any
 
 // Generic-aware variant
 func (p *ClassParser) renderStructuresInPackageWithGenerics(pack string, structures map[string]*Struct, str *LineStringBuilder, depth int, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder, emittedTypeParamClass map[string]struct{}, emittedParamLink map[string]struct{}) {
-	if len(structures) > 0 {
-		names := []string{}
-		for name := range structures {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-
-		for _, name := range names {
-			structure := structures[name]
-			p.renderStructureWithGenerics(structure, pack, name, str, composition, extends, aggregations, params, emittedTypeParamClass, emittedParamLink)
-		}
-
-		// Render renamed structs if any
-		var orderedRenamedStructs []string
-		for tempName := range p.allRenamedStructs[pack] {
-			orderedRenamedStructs = append(orderedRenamedStructs, tempName)
-		}
-		sort.Strings(orderedRenamedStructs)
-		for _, tempName := range orderedRenamedStructs {
-			name := p.allRenamedStructs[pack][tempName]
-			str.WriteLineWithDepth(depth, fmt.Sprintf(`class "%s" as %s {`, name, tempName))
-			str.WriteLineWithDepth(depth+1, aliasComplexNameComment)
-			str.WriteLineWithDepth(depth, "}")
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Render renamed structs if any
 
 func (p *ClassParser) renderStructures(pack string, structures map[string]*Struct, str *LineStringBuilder) {
-	if len(structures) > 0 {
-		composition := &LineStringBuilder{}
-		extends := &LineStringBuilder{}
-		aggregations := &LineStringBuilder{}
-		params := &LineStringBuilder{}
-		str.WriteLineWithDepth(0, fmt.Sprintf(`namespace %s {`, pack))
-
-		names := []string{}
-		for name := range structures {
-			names = append(names, name)
-		}
-
-		sort.Strings(names)
-
-		for _, name := range names {
-			structure := structures[name]
-			p.renderStructure(structure, pack, name, str, composition, extends, aggregations, params)
-		}
-		var orderedRenamedStructs []string
-		for tempName := range p.allRenamedStructs[pack] {
-			orderedRenamedStructs = append(orderedRenamedStructs, tempName)
-		}
-		sort.Strings(orderedRenamedStructs)
-		for _, tempName := range orderedRenamedStructs {
-			name := p.allRenamedStructs[pack][tempName]
-			str.WriteLineWithDepth(1, fmt.Sprintf(`class "%s" as %s {`, name, tempName))
-			str.WriteLineWithDepth(2, aliasComplexNameComment)
-			str.WriteLineWithDepth(1, "}")
-		}
-		str.WriteLineWithDepth(0, "}")
-		if p.renderingOptions.Compositions {
-			str.WriteLineWithDepth(0, composition.String())
-		}
-		if p.renderingOptions.Implementations {
-			str.WriteLineWithDepth(0, extends.String())
-		}
-		if p.renderingOptions.Aggregations {
-			str.WriteLineWithDepth(0, aggregations.String())
-		}
-		// Always render generic parameter relationships at the end
-		str.WriteLineWithDepth(0, params.String())
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (p *ClassParser) renderAliases(str *LineStringBuilder) {
+// Always render generic parameter relationships at the end
 
-	aliasString := ""
-	if p.renderingOptions.ConnectionLabels {
-		aliasString = aliasOf
-	}
-	orderedAliases := AliasSlice{}
-	for _, alias := range p.allAliases {
-		orderedAliases = append(orderedAliases, *alias)
-	}
-	sort.Sort(orderedAliases)
-	for _, alias := range orderedAliases {
-		aliasName := alias.Name
-		if strings.Count(alias.Name, ".") > 1 {
-			split := strings.SplitN(alias.Name, ".", 2)
-			if aliasRename, ok := p.allRenamedStructs[split[0]]; ok {
-				renamed := generateRenamedStructName(split[1])
-				if _, ok := aliasRename[renamed]; ok {
-					aliasName = fmt.Sprintf("%s.%s", split[0], renamed)
-				}
-			}
-		}
-		str.WriteLineWithDepth(0, fmt.Sprintf(`"%s" #.. %s"%s"`, aliasName, aliasString, alias.AliasOf))
-	}
-}
+func (p *ClassParser) renderAliases(str *LineStringBuilder) { _ = "STUB: not implemented"; return }
 
 func (p *ClassParser) renderStructure(structure *Struct, pack string, name string, str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder) {
-
-	privateFields := &LineStringBuilder{}
-	publicFields := &LineStringBuilder{}
-	privateMethods := &LineStringBuilder{}
-	publicMethods := &LineStringBuilder{}
-	sType := ""
-	renderStructureType := structure.Type
-	switch structure.Type {
-	case "class":
-		sType = "<< (S,Aquamarine) >>"
-	case "alias":
-		sType = "<< (T, #FF7700) >> "
-		renderStructureType = "class"
-
-	}
-	// Build display name including type parameters if present
-	displayName := name
-	if len(structure.TypeParameters) > 0 {
-		paramNames := make([]string, 0, len(structure.TypeParameters))
-		for _, tp := range structure.TypeParameters {
-			paramNames = append(paramNames, tp.Name)
-		}
-		displayName = fmt.Sprintf("%s[%s]", name, strings.Join(paramNames, ", "))
-		// Generic stereotype
-		sType = "<<generic>>"
-	}
-	str.WriteLineWithDepth(1, fmt.Sprintf(`%s "%s" %s {`, renderStructureType, displayName, sType))
-	p.renderStructFields(structure, privateFields, publicFields)
-	p.renderStructMethods(structure, privateMethods, publicMethods)
-	p.renderCompositions(structure, name, composition)
-	p.renderExtends(structure, name, extends)
-	p.renderAggregations(structure, name, aggregations)
-	if privateFields.Len() > 0 {
-		str.WriteLineWithDepth(0, privateFields.String())
-	}
-	if publicFields.Len() > 0 {
-		str.WriteLineWithDepth(0, publicFields.String())
-	}
-	if privateMethods.Len() > 0 {
-		str.WriteLineWithDepth(0, privateMethods.String())
-	}
-	if publicMethods.Len() > 0 {
-		str.WriteLineWithDepth(0, publicMethods.String())
-	}
-	str.WriteLineWithDepth(1, "}")
-
-	// Render type parameter classes and enqueue relationships
-	if len(structure.TypeParameters) > 0 {
-		for _, tp := range structure.TypeParameters {
-			// Type parameter class
-			str.WriteLineWithDepth(1, fmt.Sprintf(`class "%s" <<type parameter>> {`, tp.Name))
-			str.WriteLineWithDepth(2, fmt.Sprintf(`constraints: %s`, tp.Constraints))
-			str.WriteLineWithDepth(1, "}")
-			// Relationship: "T" <-- "param" "Model[T]"
-			params.WriteLineWithDepth(0, fmt.Sprintf(`"%s" <-- "param" "%s"`, tp.Name, displayName))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Build display name including type parameters if present
+
+// Generic stereotype
+
+// Render type parameter classes and enqueue relationships
+
+// Type parameter class
+
+// Relationship: "T" <-- "param" "Model[T]"
 
 // Bridge: generic-aware structure renderer using the existing renderStructure plus dedupe for params/classes
 func (p *ClassParser) renderStructureWithGenerics(structure *Struct, pack string, name string, str *LineStringBuilder, composition *LineStringBuilder, extends *LineStringBuilder, aggregations *LineStringBuilder, params *LineStringBuilder, emittedTypeParamClass map[string]struct{}, emittedParamLink map[string]struct{}) {
+	_ = "STUB: not implemented"
 	// Render the main structure and its standard relations
-	privateFields := &LineStringBuilder{}
-	publicFields := &LineStringBuilder{}
-	privateMethods := &LineStringBuilder{}
-	publicMethods := &LineStringBuilder{}
-	sType := ""
-	renderStructureType := structure.Type
-	switch structure.Type {
-	case "class":
-		sType = "<< (S,Aquamarine) >>"
-	case "alias":
-		sType = "<< (T, #FF7700) >> "
-		renderStructureType = "class"
-
-	}
-	// Build display name and alias for generic classes
-	displayName := name
-	aliasName := ""
-	if len(structure.TypeParameters) > 0 {
-		paramNames := make([]string, 0, len(structure.TypeParameters))
-		for _, tp := range structure.TypeParameters {
-			paramNames = append(paramNames, tp.Name)
-		}
-		// Create unique alias for generic class
-		aliasName = fmt.Sprintf("%s_generic_%s", name, strings.Join(paramNames, "_"))
-		// Use type parameters in stereotype instead of brackets in name
-		sType = fmt.Sprintf("<<[%s]>>", strings.Join(paramNames, ", "))
-	}
-	// Render class with alias if generic
-	if aliasName != "" {
-		str.WriteLineWithDepth(1, fmt.Sprintf(`%s "%s" as %s %s {`, renderStructureType, displayName, aliasName, sType))
-	} else {
-		str.WriteLineWithDepth(1, fmt.Sprintf(`%s "%s" %s {`, renderStructureType, displayName, sType))
-	}
-	p.renderStructFields(structure, privateFields, publicFields)
-	p.renderStructMethods(structure, privateMethods, publicMethods)
-	p.renderCompositions(structure, name, composition)
-	p.renderExtends(structure, name, extends)
-	p.renderAggregations(structure, name, aggregations)
-	if privateFields.Len() > 0 {
-		str.WriteLineWithDepth(0, privateFields.String())
-	}
-	if publicFields.Len() > 0 {
-		str.WriteLineWithDepth(0, publicFields.String())
-	}
-	if privateMethods.Len() > 0 {
-		str.WriteLineWithDepth(0, privateMethods.String())
-	}
-	if publicMethods.Len() > 0 {
-		str.WriteLineWithDepth(0, publicMethods.String())
-	}
-	str.WriteLineWithDepth(1, "}")
-
-	// Render type parameter classes and enqueue relationships (deduped)
-	if len(structure.TypeParameters) > 0 {
-		// Use alias name for connections if available
-		connectionName := displayName
-		if aliasName != "" {
-			connectionName = aliasName
-		}
-		for _, tp := range structure.TypeParameters {
-			if _, ok := emittedTypeParamClass[tp.Name]; !ok {
-				str.WriteLineWithDepth(1, fmt.Sprintf(`class "%s" <<type parameter>> {`, tp.Name))
-				str.WriteLineWithDepth(2, fmt.Sprintf(`constraints: %s`, tp.Constraints))
-				str.WriteLineWithDepth(1, "}")
-				emittedTypeParamClass[tp.Name] = struct{}{}
-			}
-			linkKey := tp.Name + "<-" + connectionName
-			if _, ok := emittedParamLink[linkKey]; !ok {
-				params.WriteLineWithDepth(0, fmt.Sprintf(`"%s" <-- "param" "%s"`, tp.Name, connectionName))
-				emittedParamLink[linkKey] = struct{}{}
-			}
-		}
-	}
+	return
 }
 
-func (p *ClassParser) renderCompositions(structure *Struct, name string, composition *LineStringBuilder) {
-	orderedCompositions := []string{}
+// Build display name and alias for generic classes
 
-	for c := range structure.Composition {
-		if !strings.Contains(c, ".") {
-			c = fmt.Sprintf("%s.%s", p.getPackageName(c, structure), c)
-		}
-		composedString := ""
-		if p.renderingOptions.ConnectionLabels {
-			composedString = extends
-		}
-		c = fmt.Sprintf(`"%s" *-- %s"%s.%s"`, c, composedString, structure.PackageName, name)
-		orderedCompositions = append(orderedCompositions, c)
-	}
-	sort.Strings(orderedCompositions)
-	for _, c := range orderedCompositions {
-		composition.WriteLineWithDepth(0, c)
-	}
+// Create unique alias for generic class
+
+// Use type parameters in stereotype instead of brackets in name
+
+// Render class with alias if generic
+
+// Render type parameter classes and enqueue relationships (deduped)
+
+// Use alias name for connections if available
+
+func (p *ClassParser) renderCompositions(structure *Struct, name string, composition *LineStringBuilder) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) renderAggregations(structure *Struct, name string, aggregations *LineStringBuilder) {
-
-	aggregationMap := structure.Aggregations
-	if p.renderingOptions.AggregatePrivateMembers {
-		p.updatePrivateAggregations(structure, aggregationMap)
-	}
-	p.renderAggregationMap(aggregationMap, structure, aggregations, name)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) updatePrivateAggregations(structure *Struct, aggregationsMap map[string]struct{}) {
-
-	for agg := range structure.PrivateAggregations {
-		aggregationsMap[agg] = struct{}{}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) renderAggregationMap(aggregationMap map[string]struct{}, structure *Struct, aggregations *LineStringBuilder, name string) {
-	var orderedAggregations []string
-	for a := range aggregationMap {
-		orderedAggregations = append(orderedAggregations, a)
-	}
-
-	sort.Strings(orderedAggregations)
-
-	for _, a := range orderedAggregations {
-		if !strings.Contains(a, ".") {
-			a = fmt.Sprintf("%s.%s", p.getPackageName(a, structure), a)
-		}
-		aggregationString := ""
-		if p.renderingOptions.ConnectionLabels {
-			aggregationString = aggregates
-		}
-		if p.getPackageName(a, structure) != builtinPackageName {
-			aggregations.WriteLineWithDepth(0, fmt.Sprintf(`"%s.%s"%s o-- "%s"`, structure.PackageName, name, aggregationString, a))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) getPackageName(t string, st *Struct) string {
-
-	packageName := st.PackageName
-	if isPrimitiveString(t) {
-		packageName = builtinPackageName
-	}
-	return packageName
+	_ = "STUB: not implemented"
+	return ""
 }
-func (p *ClassParser) renderExtends(structure *Struct, name string, extends *LineStringBuilder) {
 
-	orderedExtends := []string{}
-	for c := range structure.Extends {
-		if !strings.Contains(c, ".") {
-			c = fmt.Sprintf("%s.%s", structure.PackageName, c)
-		}
-		implementString := ""
-		if p.renderingOptions.ConnectionLabels {
-			implementString = implements
-		}
-		c = fmt.Sprintf(`"%s" <|-- %s"%s.%s"`, c, implementString, structure.PackageName, name)
-		orderedExtends = append(orderedExtends, c)
-	}
-	sort.Strings(orderedExtends)
-	for _, c := range orderedExtends {
-		extends.WriteLineWithDepth(0, c)
-	}
+func (p *ClassParser) renderExtends(structure *Struct, name string, extends *LineStringBuilder) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) renderStructMethods(structure *Struct, privateMethods *LineStringBuilder, publicMethods *LineStringBuilder) {
-
-	for _, method := range structure.Functions {
-		accessModifier := "+"
-		if len(method.Name) > 0 && unicode.IsLower(rune(method.Name[0])) {
-			if !p.renderingOptions.PrivateMembers {
-				continue
-			}
-
-			accessModifier = "-"
-		}
-		parameterList := make([]string, 0)
-		for _, p := range method.Parameters {
-			parameterList = append(parameterList, fmt.Sprintf("%s %s", p.Name, p.Type))
-		}
-		returnValues := ""
-		if len(method.ReturnValues) > 0 {
-			if len(method.ReturnValues) == 1 {
-				returnValues = method.ReturnValues[0]
-			} else {
-				returnValues = fmt.Sprintf("(%s)", strings.Join(method.ReturnValues, ", "))
-			}
-		}
-		if accessModifier == "-" {
-			privateMethods.WriteLineWithDepth(2, fmt.Sprintf(`%s %s(%s) %s`, accessModifier, method.Name, strings.Join(parameterList, ", "), returnValues))
-		} else {
-			publicMethods.WriteLineWithDepth(2, fmt.Sprintf(`%s %s(%s) %s`, accessModifier, method.Name, strings.Join(parameterList, ", "), returnValues))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (p *ClassParser) renderStructFields(structure *Struct, privateFields *LineStringBuilder, publicFields *LineStringBuilder) {
-	for _, field := range structure.Fields {
-		accessModifier := "+"
-		if len(field.Name) > 0 && unicode.IsLower(rune(field.Name[0])) {
-			if !p.renderingOptions.PrivateMembers {
-				continue
-			}
-
-			accessModifier = "-"
-		}
-		if accessModifier == "-" {
-			privateFields.WriteLineWithDepth(2, fmt.Sprintf(`%s %s %s`, accessModifier, field.Name, field.Type))
-		} else {
-			publicFields.WriteLineWithDepth(2, fmt.Sprintf(`%s %s %s`, accessModifier, field.Name, field.Type))
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Returns an initialized struct of the given name or returns the existing one if it was already created
 func (p *ClassParser) getOrCreateStruct(name string) *Struct {
+	_ = "STUB: not implemented"
 	// Skip empty or invalid struct names to prevent PlantUML syntax errors
-	if name == "" {
-		return nil
-	}
-	result, ok := p.structure[p.currentPackageName][name]
-	if !ok {
-		result = &Struct{
-			PackageName:         p.currentPackageName,
-			Functions:           make([]*Function, 0),
-			Fields:              make([]*Field, 0),
-			Type:                "",
-			Composition:         make(map[string]struct{}, 0),
-			Extends:             make(map[string]struct{}, 0),
-			Aggregations:        make(map[string]struct{}, 0),
-			PrivateAggregations: make(map[string]struct{}, 0),
-		}
-		p.structure[p.currentPackageName][name] = result
-	}
-	return result
+	return nil
 }
 
 // Returns an existing struct only if it was created. nil otherwhise
-func (p *ClassParser) getStruct(structName string) *Struct {
-	split := strings.SplitN(structName, ".", 2)
-	pack, ok := p.structure[split[0]]
-	if !ok {
-		return nil
-	}
-	return pack[split[1]]
-}
+func (p *ClassParser) getStruct(structName string) *Struct { _ = "STUB: not implemented"; return nil }
 
 // SetRenderingOptions Sets the rendering options for the Render() Function
 func (p *ClassParser) SetRenderingOptions(ro map[RenderingOption]interface{}) error {
-	for option, val := range ro {
-		switch option {
-		case RenderAggregations:
-			p.renderingOptions.Aggregations = val.(bool)
-		case RenderAliases:
-			p.renderingOptions.Aliases = val.(bool)
-		case RenderCompositions:
-			p.renderingOptions.Compositions = val.(bool)
-		case RenderFields:
-			p.renderingOptions.Fields = val.(bool)
-		case RenderImplementations:
-			p.renderingOptions.Implementations = val.(bool)
-		case RenderMethods:
-			p.renderingOptions.Methods = val.(bool)
-		case RenderConnectionLabels:
-			p.renderingOptions.ConnectionLabels = val.(bool)
-		case RenderTitle:
-			p.renderingOptions.Title = val.(string)
-		case RenderNotes:
-			p.renderingOptions.Notes = val.(string)
-		case AggregatePrivateMembers:
-			p.renderingOptions.AggregatePrivateMembers = val.(bool)
-		case RenderPrivateMembers:
-			p.renderingOptions.PrivateMembers = val.(bool)
-		default:
-			return fmt.Errorf("invalid rendering option %v", option)
-		}
-
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
-func generateRenamedStructName(currentName string) string {
-	reg, _ := regexp.Compile("[^a-zA-Z0-9]+")
-	return reg.ReplaceAllString(currentName, "")
-}
+
+func generateRenamedStructName(currentName string) string { _ = "STUB: not implemented"; return "" }

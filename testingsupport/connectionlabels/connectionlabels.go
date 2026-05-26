@@ -12,8 +12,10 @@ type ImplementsAbstractInterface struct {
 }
 
 func (iai *ImplementsAbstractInterface) interfaceFunction() bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// AliasOfInt for testing purposes
+	return false
 }
 
-// AliasOfInt for testing purposes
 type AliasOfInt int
